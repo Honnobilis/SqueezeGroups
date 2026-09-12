@@ -128,9 +128,11 @@ fun HomeScreen(
             HorizontalDivider()
 
             val players = uiState.groupsState?.allPlayers ?: emptyList()
+            val unreachablePlayers = uiState.groupsState?.unreachable?.toSet() ?: emptySet()
 
             GroupBuilderTable(
                 players = players,
+                unreachablePlayers = unreachablePlayers,
                 groupCount = groupCount,
                 assignment = assignment,
                 onAddGroup = { groupCount += 1 },
@@ -245,6 +247,7 @@ private fun CurrentStateCard(state: GroupsState?) {
 @Composable
 private fun GroupBuilderTable(
     players: List<String>,
+    unreachablePlayers: Set<String>,
     groupCount: Int,
     assignment: MutableMap<String, Int>,
     onAddGroup: () -> Unit,
@@ -284,13 +287,24 @@ private fun GroupBuilderTable(
             HorizontalDivider()
             Spacer(Modifier.height(4.dp))
             players.forEach { player ->
+                val isUnreachable = player in unreachablePlayers
+                val rowColor = if (isUnreachable) {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                } else {
+                    Color.Unspecified
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(player, modifier = Modifier.width(NAME_COL_WIDTH))
+                    Text(
+                        text = if (isUnreachable) "$player (unreachable)" else player,
+                        color = rowColor,
+                        modifier = Modifier.width(NAME_COL_WIDTH)
+                    )
                     for (col in 1..groupCount) {
                         Box(modifier = Modifier.width(GROUP_COL_WIDTH), contentAlignment = Alignment.Center) {
                             Checkbox(
                                 checked = assignment[player] == col,
-                                onCheckedChange = { checked -> assignment[player] = if (checked) col else 0 }
+                                onCheckedChange = { checked -> assignment[player] = if (checked) col else 0 },
+                                enabled = !isUnreachable
                             )
                         }
                     }
