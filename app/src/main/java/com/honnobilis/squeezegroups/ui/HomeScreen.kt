@@ -71,7 +71,7 @@ fun HomeScreen(
     // 0 = no group. 1..groupCount = column index.
     val assignment = remember { mutableStateMapOf<String, Int>() }
     var groupCount by remember { mutableIntStateOf(0) }
-    var mode by remember { mutableIntStateOf(0) } // 0 = targeted, 1 = world
+    var mode by remember { mutableIntStateOf(1) } // 0 = targeted, 1 = world
 
     LaunchedEffect(uiState.groupsState) {
         val state = uiState.groupsState ?: return@LaunchedEffect
